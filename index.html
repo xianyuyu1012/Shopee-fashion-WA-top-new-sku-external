@@ -344,10 +344,12 @@
                 <option value="Local">Local</option>
             </select>
 
-            <label class="switch-container">
-                <input type="checkbox" id="topNewFilter" onchange="applyFilters()">
-                <span style="font-size: 13px; font-weight: 500;">🔥 Top New SKU</span>
-            </label>
+            <span class="filter-label">🔥 Top New SKU</span>
+            <select id="topNewFilter" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="Y">Y</option>
+                <option value="N">N</option>
+            </select>
         </div>
     </div>
 
@@ -510,13 +512,18 @@
         const l3 = document.getElementById('l3Filter').value;
         const site = document.getElementById('siteFilter').value;
         const seller = document.getElementById('sellerTypeFilter').value;
-        const isTopNew = document.getElementById('topNewFilter').checked;
+        
+        // 【新增/修改】获取下拉框选中的值 (All="", Y="Y", N="N")
+        const topNewVal = document.getElementById('topNewFilter').value;
+        
         const minP = parseFloat(document.getElementById('minPrice').value) || 0;
         const maxP = parseFloat(document.getElementById('maxPrice').value) || Infinity;
 
         filteredData = products.filter(arr => {
             const i = mapData(arr);
-            const matchTopNew = !isTopNew || i.is_new_sku === 'Y';
+            
+            // 【新增/修改】筛选逻辑：如果 topNewVal 为空则不筛选，否则匹配 is_new_sku 字段
+            const matchTopNew = !topNewVal || i.is_new_sku === topNewVal;
             
             return (!q || i.title.toLowerCase().includes(q) || i.itemid.includes(q)) &&
                    (!l1 || i.l1 === l1) && (!l2 || i.l2 === l2) && (!l3 || i.l3 === l3) &&
@@ -541,7 +548,10 @@
         document.getElementById('maxPrice').value = '';
         document.getElementById('siteFilter').value = '';
         document.getElementById('sellerTypeFilter').value = '';
-        document.getElementById('topNewFilter').checked = false;
+        
+        // 【新增/修改】重置时恢复到 All (空值)
+        document.getElementById('topNewFilter').value = '';
+        
         document.getElementById('sortOrder').value = 'dateDesc';
         updateL2(); applyFilters();
     }
